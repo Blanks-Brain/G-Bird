@@ -10,7 +10,10 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.0/ref/settings/
 """
 
+from datetime import timedelta
 from pathlib import Path
+
+from django.conf import settings
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -41,6 +44,8 @@ INSTALLED_APPS = [
     # 3rd party app
     'rest_framework',
     'corsheaders',
+    'djoser',
+    'rest_framework_simplejwt',
 
     # local app
     'users'
@@ -142,3 +147,45 @@ STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 CORS_ORIGIN_ALLOW_ALL = True
+
+
+REST_FRAMEWORK = {
+
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+    
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    )
+
+}
+
+SIMPLE_JWT = {
+    "AUTH_HEADER_TYPES": ("Bearer","JWT",),
+    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=150),
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=30),
+    "SIGNING_KEY": settings.SECRET_KEY,
+    "AUTH_HEADER_NAME": "HTTP_AUTHORIZATION",
+    "AUTH_TOKEN_CLASSES": ("rest_framework_simplejwt.tokens.AccessToken",),
+}
+
+
+DJOSER = {
+    
+    'LOGIN_FIELD':'email',
+    'USER_CREATE_PASSWORD_RETYPE':True,
+    'USERNAME_CHANGED_EMAIL_CONFIRMATION':True,
+    "PASSWORD_CHANGED_EMAIL_CONFIRMATION": True,
+    "SEND_CONFIRMATION_EMAIL": True,
+    "PASSWORD_RESET_CONFIRM_URL": "password/reset/confirm/{uid}/{token}",
+    "SET_PASSWORD_RETYPE": True,
+    "PASSWORD_RESET_CONFIRM_RETYPE": True,
+    'USERNAME_RESET_CONFIRM_URL': 'username/reset/confirm/{uid}/{token}',
+    'ACTIVATION_URL': 'activate/{uid}/{token}',
+    'SEND_ACTIVATION_EMAIL': True,
+    'SERIALIZERS': {
+        'user_create': 'users.serializers.CreateUserSerializer',
+        'user': "users.serializers.CreateUserSerializer",
+        'user_delete': "djoser.serializers.UserDeleteSerializer",      
+    },
+
+    
+}
